@@ -1,0 +1,72 @@
+<div class="fixed inset-0 z-50 flex justify-center bg-black/80 backdrop-blur-sm">
+  <div class="rise flex w-full max-w-[430px] flex-col bg-background px-5 pb-[calc(1.5rem+var(--safe-bottom))] pt-[calc(2rem+var(--safe-top))]">
+    <p class="label-caps text-center text-primary">
+      {{ rest().done ? 'Descanso concluído' : 'Descanso' }}
+    </p>
+
+    <div class="relative mx-auto mt-8 grid size-[17rem] place-items-center">
+      <svg viewBox="0 0 260 260" class="absolute size-full -rotate-90">
+        <circle cx="130" cy="130" r="120" fill="none" stroke="var(--secondary)" stroke-width="10" />
+        <circle
+          cx="130"
+          cy="130"
+          r="120"
+          fill="none"
+          [attr.stroke]="rest().done ? 'var(--success)' : 'var(--primary)'"
+          stroke-width="10"
+          stroke-linecap="round"
+          [attr.stroke-dasharray]="circunferenciaSvg"
+          [attr.stroke-dashoffset]="dashOffset()"
+          style="transition: stroke-dashoffset 1s linear"
+        />
+      </svg>
+      <div class="text-center">
+        @if (rest().done) {
+          <span class="stamp mx-auto grid size-16 place-items-center rounded-full bg-success/20 text-success">
+            <ion-icon name="checkmark" class="text-4xl"></ion-icon>
+          </span>
+          <p class="mt-3 text-base font-bold text-foreground">Pronto para a próxima série</p>
+        } @else {
+          <p class="num text-[5.5rem] leading-none text-foreground">{{ formatClock(rest().remaining) }}</p>
+          <p class="mt-1 text-xs font-bold uppercase tracking-widest text-muted-foreground">
+            {{ rest().paused ? 'Pausado' : 'Restante' }}
+          </p>
+        }
+      </div>
+    </div>
+
+    <div class="mt-8 text-center">
+      <p class="label-caps">Depois deste descanso</p>
+      <p class="mt-1 text-lg font-extrabold text-foreground">{{ proximoTexto() }}</p>
+    </div>
+
+    <div class="mt-auto space-y-3 pt-8">
+      <div class="flex gap-2">
+        <button
+          type="button"
+          (click)="restControls.add(30)"
+          class="tap flex flex-1 items-center justify-center gap-2 rounded-2xl bg-secondary text-sm font-bold text-foreground"
+        >
+          <ion-icon name="add" class="text-base"></ion-icon> 30s
+        </button>
+        <button
+          type="button"
+          (click)="restControls.pause()"
+          [disabled]="rest().done"
+          class="tap flex flex-1 items-center justify-center gap-2 rounded-2xl bg-secondary text-sm font-bold text-foreground disabled:opacity-40"
+        >
+          <ion-icon [name]="rest().paused ? 'play' : 'pause'" class="text-base rounded-full"></ion-icon>
+          {{ rest().paused ? 'Retomar' : 'Pausar' }}
+        </button>
+      </div>
+      <button
+        type="button"
+        (click)="restControls.skip()"
+        class="tap flex min-h-[4rem] w-full items-center justify-center gap-2 rounded-2xl bg-primary text-base font-bold text-primary-foreground"
+      >
+        <ion-icon name="play-skip-forward" class="text-lg rounded-full"></ion-icon>
+        {{ rest().done ? 'Continuar treino' : 'Pular descanso' }}
+      </button>
+    </div>
+  </div>
+</div>

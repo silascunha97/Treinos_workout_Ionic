@@ -1,0 +1,106 @@
+<ion-tabs>
+      @if (mostrarBarraTreino() && session(); as sessao) {
+        <a
+          routerLink="/tabs/workout"
+          class="tap mx-4 mb-2 flex items-center justify-between rounded-2xl border border-primary/40 bg-primary/10 px-4 py-3"
+        >
+          <span>
+            <span class="label-caps text-primary">Treino ativo</span>
+            <span class="block text-sm font-bold text-foreground">
+              {{ sessao.exercises[sessao.currentExercise]?.name }} · {{ sessao.exercises.length }} exercícios
+            </span>
+          </span>
+          <span class="num text-2xl text-primary">{{ formatClock(elapsedSec()) }}</span>
+        </a>
+      }
+
+      <ion-tab-bar
+        slot="bottom"
+        class="bg-dark-bg border-t border-dark-border/80 h-20 px-1 pb-2 flex items-center justify-around"
+      >
+        <!-- Aba 1: Início -->
+        <ion-tab-button
+          tab="home"
+          class="bg-transparent text-muted transition-colors flex flex-col items-center justify-center relative py-1
+                 [&.tab-selected]:text-volt
+                 [&.tab-selected]:after:content-['']
+                 [&.tab-selected]:after:w-6
+                 [&.tab-selected]:after:h-[3px]
+                 [&.tab-selected]:after:bg-volt
+                 [&.tab-selected]:after:rounded-full
+                 [&.tab-selected]:after:absolute
+                 [&.tab-selected]:after:bottom-0"
+        >
+          <ion-icon name="home-outline" class="text-2xl mb-0.5"></ion-icon>
+          <ion-label class="text-[10px] font-extrabold tracking-wider uppercase">INÍCIO</ion-label>
+        </ion-tab-button>
+
+        <!-- Aba 2: Treino -->
+        <ion-tab-button
+          tab="workout"
+          class="bg-transparent text-muted transition-colors flex flex-col items-center justify-center relative py-1
+                 [&.tab-selected]:text-volt
+                 [&.tab-selected]:after:content-['']
+                 [&.tab-selected]:after:w-6
+                 [&.tab-selected]:after:h-[3px]
+                 [&.tab-selected]:after:bg-volt
+                 [&.tab-selected]:after:rounded-full
+                 [&.tab-selected]:after:absolute
+                 [&.tab-selected]:after:bottom-0"
+        >
+          <ion-icon name="barbell-outline" class="text-2xl mb-0.5"></ion-icon>
+          <ion-label class="text-[10px] font-extrabold tracking-wider uppercase">TREINO</ion-label>
+        </ion-tab-button>
+
+        <!-- Aba 3: Exercícios -->
+        <ion-tab-button
+          tab="exercises"
+          class="bg-transparent text-muted transition-colors flex flex-col items-center justify-center relative py-1
+                 [&.tab-selected]:text-volt
+                 [&.tab-selected]:after:content-['']
+                 [&.tab-selected]:after:w-6
+                 [&.tab-selected]:after:h-[3px]
+                 [&.tab-selected]:after:bg-volt
+                 [&.tab-selected]:after:rounded-full
+                 [&.tab-selected]:after:absolute
+                 [&.tab-selected]:after:bottom-0"
+        >
+          <ion-icon name="list-outline" class="text-2xl mb-0.5"></ion-icon>
+          <ion-label class="text-[10px] font-extrabold tracking-wider uppercase">EXERCÍCIOS</ion-label>
+        </ion-tab-button>
+
+        <!-- Aba 4: Métricas -->
+        <ion-tab-button
+          tab="metrics"
+          class="bg-transparent text-muted transition-colors flex flex-col items-center justify-center relative py-1
+                 [&.tab-selected]:text-volt
+                 [&.tab-selected]:after:content-['']
+                 [&.tab-selected]:after:w-6
+                 [&.tab-selected]:after:h-[3px]
+                 [&.tab-selected]:after:bg-volt
+                 [&.tab-selected]:after:rounded-full
+                 [&.tab-selected]:after:absolute
+                 [&.tab-selected]:after:bottom-0"
+        >
+          <ion-icon name="trending-up-outline" class="text-2xl mb-0.5"></ion-icon>
+          <ion-label class="text-[10px] font-extrabold tracking-wider uppercase">MÉTRICAS</ion-label>
+        </ion-tab-button>
+
+        <!-- Aba 5: Perfil -->
+        <ion-tab-button
+          tab="profile"
+          class="bg-transparent text-muted transition-colors flex flex-col items-center justify-center relative py-1
+                 [&.tab-selected]:text-volt
+                 [&.tab-selected]:after:content-['']
+                 [&.tab-selected]:after:w-6
+                 [&.tab-selected]:after:h-[3px]
+                 [&.tab-selected]:after:bg-volt
+                 [&.tab-selected]:after:rounded-full
+                 [&.tab-selected]:after:absolute
+                 [&.tab-selected]:after:bottom-0"
+        >
+          <ion-icon name="person-outline" class="text-2xl mb-0.5"></ion-icon>
+          <ion-label class="text-[10px] font-extrabold tracking-wider uppercase">PERFIL</ion-label>
+        </ion-tab-button>
+      </ion-tab-bar>
+    </ion-tabs>

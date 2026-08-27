@@ -1,0 +1,44 @@
+mutation AutenticarComSenha($email: String!, $senha: String!) {
+  autenticarComSenha(email: $email, senha: $senha) {
+    accessToken
+    refreshToken
+    usuario {
+      id
+      pessoa {
+        id
+        nome
+        email
+      }
+    }
+  }
+}
+
+mutation AutenticarComGoogle($idToken: String!) {
+  autenticarComGoogle(idToken: $idToken) {
+    accessToken
+    refreshToken
+    usuario {
+      id
+      pessoa {
+        id
+        nome
+        email
+      }
+    }
+  }
+}
+
+mutation Registrar($input: RegistrarInput!) {
+  registrar(input: $input) {
+    accessToken
+    refreshToken
+    usuario {
+      id
+      pessoa {
+        id
+        nome
+        email
+      }
+    }
+  }
+}

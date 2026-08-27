@@ -1,0 +1,348 @@
+@if (!session()) {
+  <!-- Sem treino em andamento -->
+  <div class="flex h-full flex-col bg-background">
+    <header class="flex items-center justify-between px-5 pb-3 pt-[calc(1.25rem+var(--safe-top))]">
+      <h1 class="text-xl font-extrabold text-foreground">Treino</h1>
+      <app-sync-pill></app-sync-pill>
+    </header>
+
+    <app-empty-state
+      icon="barbell-outline"
+      title="Nenhum treino em andamento"
+      text="Monte o treino de hoje escolhendo os exercícios. Você pode ajustar tudo durante a execução."
+    >
+      <app-button 
+        (click)="abrirPickerNovo()"
+        extraClass="w-full !rounded-full"
+      >
+        Montar treino
+      </app-button>
+    </app-empty-state>
+  </div>
+} @else {
+  <!-- Treino em andamento -->
+  <div class="relative flex h-full flex-col bg-background">
+    <header class="px-5 pb-3 pt-[calc(1rem+var(--safe-top))]">
+      <div class="flex items-center gap-3">
+        <div class="min-w-0 flex-1">
+          <p class="label-caps text-primary">Treino ativo</p>
+          <h1 class="truncate text-base font-extrabold text-foreground">{{ session()!.name }}</h1>
+        </div>
+        <span class="num text-3xl text-foreground">{{ formatClock(elapsedSec()) }}</span>
+        <button
+          type="button"
+          (click)="sairAberto.set(true)"
+          aria-label="Sair do treino"
+          class="tap grid size-10 place-items-center rounded-full bg-secondary text-foreground"
+        >
+          <ion-icon name="close" class="text-lg"></ion-icon>
+        </button>
+      </div>
+      <div class="mt-3 flex items-center gap-2">
+        @if (!online()) {
+          <app-pill tone="warning">Offline · salvo neste aparelho</app-pill>
+        } @else {
+          <app-pill [tone]="syncState() === 'syncing' ? 'info' : 'success'">
+            {{ syncState() === 'syncing' ? 'Salvando' : 'Salvo' }}
+          </app-pill>
+        }
+        <span class="text-[11px] font-bold text-muted-foreground">
+          {{ seriesFeitas().length }}/{{ todasSeries().length }} séries · {{ volumeAtual() | volume }}
+        </span>
+      </div>
+      <div class="mt-3">
+        <ion-progress-bar [value]="progresso()" color="primary" class="rounded-full"></ion-progress-bar>
+      </div>
+    </header>
+
+    <!-- Exercício e série atual -->
+    <section class="screen-pad mt-4">
+      <h2 class="text-3xl font-black uppercase leading-none tracking-tight text-foreground">
+        {{ exercicioAtual()?.name }}
+      </h2>
+      <p class="mt-1.5 text-sm text-muted-foreground">{{ exercicioAtual()?.group }}</p>
+
+      <div class="mt-5 flex items-center justify-between">
+        <p class="num text-2xl text-foreground">
+          Série <span class="text-primary">{{ indiceSerieAtual() + 1 }}</span> / {{ exercicioAtual()?.sets?.length }}
+        </p>
+        @if (exercicioAtual()?.lastSession; as ultima) {
+          <p class="text-xs text-muted-foreground">Última vez: {{ ultima.weight }} kg × {{ ultima.reps }}</p>
+        }
+      </div>
+
+      <div class="mt-3 flex gap-1.5">
+        @for (s of exercicioAtual()?.sets ?? []; track $index) {
+          <span
+            [class]="
+              s.done
+                ? 'h-2 flex-1 rounded-full bg-primary'
+                : $index === indiceSerieAtual()
+                  ? 'h-2 flex-1 rounded-full bg-primary/40'
+                  : 'h-2 flex-1 rounded-full bg-secondary'
+            "
+          ></span>
+        }
+      </div>
+    </section>
+
+    <!-- Inputs grandes -->
+    @if (serieAtual(); as serie) {
+      <section class="screen-pad mt-6 grid grid-cols-2 gap-3">
+        <div class="surface-card p-3">
+          <p class="label-caps text-center">
+            Carga
+            @if (exercicioAtual()?.holdOnly) {
+              <span class="normal-case tracking-normal text-muted-foreground">(opcional)</span>
+            }
+          </p>
+          <p class="num mt-2 text-center text-5xl text-foreground">
+            {{ serie.weight }}<span class="ml-1 text-xs font-semibold tracking-normal text-muted-foreground">kg</span>
+          </p>
+          <div class="mt-3 flex gap-2">
+            <button type="button" (click)="ajustarCarga(-2.5)" class="tap flex-1 rounded-xl bg-secondary text-xl font-black text-foreground">−</button>
+            <button type="button" (click)="ajustarCarga(2.5)" class="tap flex-1 rounded-xl bg-secondary text-xl font-black text-foreground">+</button>
+          </div>
+        </div>
+
+        @if (exercicioAtual()?.holdOnly) {
+          <div class="surface-card p-3">
+            <p class="label-caps text-center">Tempo</p>
+            <p class="num mt-2 text-center text-5xl text-foreground">
+              {{ serie.holdSec }}<span class="ml-1 text-xs font-semibold tracking-normal text-muted-foreground">s</span>
+            </p>
+            <div class="mt-3 flex gap-2">
+              <button type="button" (click)="ajustarHold(-5)" class="tap flex-1 rounded-xl bg-secondary text-xl font-black text-foreground">−</button>
+              <button type="button" (click)="ajustarHold(5)" class="tap flex-1 rounded-xl bg-secondary text-xl font-black text-foreground">+</button>
+            </div>
+          </div>
+        } @else {
+          <div class="surface-card p-3">
+            <p class="label-caps text-center">Repetições</p>
+            <p class="num mt-2 text-center text-5xl text-foreground">
+              {{ serie.reps }}<span class="ml-1 text-xs font-semibold tracking-normal text-muted-foreground">reps</span>
+            </p>
+            <div class="mt-3 flex gap-2">
+              <button type="button" (click)="ajustarReps(-1)" class="tap flex-1 rounded-xl bg-secondary text-xl font-black text-foreground">−</button>
+              <button type="button" (click)="ajustarReps(1)" class="tap flex-1 rounded-xl bg-secondary text-xl font-black text-foreground">+</button>
+            </div>
+          </div>
+        }
+      </section>
+
+      <!-- Isometria adicional -->
+      @if (!exercicioAtual()?.holdOnly) {
+        <section class="screen-pad mt-3">
+          @if (exercicioAtual()?.hold) {
+            <div class="rounded-2xl! border border-primary/40 bg-primary/10 p-3">
+              <div class="flex items-center justify-between">
+                <p class="label-caps text-primary">Isometria na série</p>
+                <button type="button" (click)="removerHold()" class="text-xs font-bold text-muted-foreground underline">Remover</button>
+              </div>
+              <div class="mt-2 flex items-center justify-center gap-4">
+                <button type="button" (click)="ajustarHold(-5)" class="tap grid size-9 place-items-center rounded-full! bg-secondary text-lg font-black text-foreground">−</button>
+                <span class="num text-2xl text-primary">
+                  +{{ serie.holdSec }}<span class="text-xs font-semibold text-muted-foreground"> s sustentando</span>
+                </span>
+                <button type="button" (click)="ajustarHold(5)" class="tap grid size-9 place-items-center rounded-full! bg-secondary text-lg font-black text-foreground">+</button>
+              </div>
+            </div>
+          } @else {
+            <button
+              type="button"
+              (click)="ativarHold()"
+              class="tap flex w-full items-center justify-center gap-2 rounded-2xl! border border-dashed border-border py-3 text-sm font-bold text-muted-foreground"
+            >
+              <ion-icon name="timer-outline" class="text-base"></ion-icon> Teve parada isométrica? Adicionar
+            </button>
+          }
+        </section>
+      }
+    }
+
+    @if (acabouDeSalvar()) {
+      <div class="stamp screen-pad mt-5 flex items-center gap-2 text-primary">
+        <span class="grid size-7 place-items-center rounded-full bg-primary text-primary-foreground">
+          <ion-icon name="checkmark" class="text-sm"></ion-icon>
+        </span>
+        <span class="text-sm font-bold">Série concluída</span>
+      </div>
+    }
+
+    <!-- Próximo -->
+    <section class="screen-pad mt-6">
+      @if (exercicioConcluido() && proximoExercicio(); as proximo) {
+        <button
+          type="button"
+          (click)="irParaProximo()"
+          class="tap flex w-full items-center justify-between rounded-2xl border border-primary/30 bg-primary/10 px-4 py-3.5"
+        >
+          <span class="text-left">
+            <span class="label-caps text-primary">Próximo exercício</span>
+            <span class="block text-base font-bold text-foreground">{{ proximo.name }}</span>
+          </span>
+          <ion-icon name="chevron-forward" class="text-lg text-primary"></ion-icon>
+        </button>
+      } @else if (proximoExercicio(); as proximo) {
+        <p class="text-xs text-muted-foreground">
+          Próximo: <span class="font-bold text-foreground">{{ proximo.name }}</span>
+        </p>
+      } @else {
+        <p class="text-base text-center text-muted-foreground">Último exercício do treino</p>
+      }
+    </section>
+
+    <!-- Ações inferiores -->
+    <div class="mt-auto space-y-3 px-5 pb-[calc(1.25rem+var(--safe-bottom))] pt-6">
+      <!-- Ações secundárias -->
+      <div class="flex gap-2">
+        <button 
+          type="button" 
+          (click)="abrirPickerAdicionar()" 
+          class="tap relative flex flex-1 items-center justify-center gap-1.5 h-11 bg-secondary font-mono text-xs font-bold uppercase tracking-wider text-foreground transition-all active:scale-95"
+          style="clip-path: polygon(0 0, 88% 0, 100% 30%, 100% 100%, 12% 100%, 0 70%);"
+        >
+          <ion-icon name="add-outline" class="text-base"></ion-icon> Exercício
+        </button>
+
+        <button
+          type="button"
+          (click)="desfazerSerie()"
+          [disabled]="!seriesFeitas().length"
+          class="tap relative flex flex-1 items-center justify-center gap-1.5 h-11 bg-secondary font-mono text-xs font-bold uppercase tracking-wider text-foreground transition-all disabled:opacity-40 active:scale-95"
+          style="clip-path: polygon(0 0, 88% 0, 100% 30%, 100% 100%, 12% 100%, 0 70%);"
+        >
+          <ion-icon name="arrow-undo-outline" class="text-base"></ion-icon> Desfazer
+        </button>
+
+        <button 
+          type="button" 
+          (click)="finalizarAberto.set(true)" 
+          class="tap relative flex flex-1 items-center justify-center h-11 bg-secondary font-mono text-xs font-bold uppercase tracking-wider text-foreground transition-all active:scale-95"
+          style="clip-path: polygon(0 0, 88% 0, 100% 30%, 100% 100%, 12% 100%, 0 70%);"
+        >
+          Finalizar
+        </button>
+      </div>
+
+      <!-- Botão Principal de Ação (ex: Concluir Série) -->
+      @if (exercicioConcluido() && !proximoExercicio()) {
+        <app-button
+          (click)="finalizarAberto.set(true)"
+          extraClass="w-full min-h-[4.5rem] !rounded-full text-lg"
+        >
+          REVISAR E FINALIZAR
+        </app-button>
+
+      } @else if (exercicioConcluido()) {
+        <app-button
+          (click)="irParaProximo()"
+          extraClass="w-full min-h-[4.5rem] !rounded-full text-lg"
+        >
+          IR PARA O PRÓXIMO
+        </app-button>
+
+      } @else {
+        <app-button
+          (click)="concluirSerie()"
+          [disabled]="savingSet()"
+          [extraClass]="
+            savingSet()
+              ? 'w-full min-h-[4.5rem] !rounded-full text-lg'
+              : 'w-full min-h-[4.5rem] !rounded-full text-lg pulse-accent'
+          "
+        >
+          {{ savingSet() ? 'SALVANDO...' : 'CONCLUIR SÉRIE' }}
+        </app-button>
+      }
+    </div>
+
+    @if (rest().active) {
+      <app-rest-timer></app-rest-timer>
+    }
+  </div>
+}
+
+<app-exercise-picker
+  [open]="pickerAberto()"
+  [mode]="pickerModo()"
+  (closed)="fecharPicker()"
+  (confirmed)="confirmarPicker($event)"
+></app-exercise-picker>
+
+<!-- Sair do treino -->
+<ion-modal class="sheet-modal" [isOpen]="sairAberto()" [initialBreakpoint]="0.4" [breakpoints]="[0, 0.4]" (didDismiss)="sairAberto.set(false)">
+  <ng-template>
+    <div class="flex flex-col bg-popover px-5 pb-[calc(1.25rem+var(--safe-bottom))] pt-4">
+      <h2 class="text-base font-bold text-foreground">Sair do treino?</h2>
+      <p class="pb-4 pt-2 text-sm text-muted-foreground">
+        Seu treino continua salvo neste aparelho. Você pode voltar e continuar de onde parou.
+      </p>
+      <div class="space-y-2 pb-2">
+        <app-button (click)="sairSemDescartar()">Sair e continuar depois</app-button>
+        <app-button variant="danger" (click)="abandonarTreino()">Abandonar treino</app-button>
+        <app-button variant="ghost" (click)="sairAberto.set(false)">Continuar treinando</app-button>
+      </div>
+    </div>
+  </ng-template>
+</ion-modal>
+
+<!-- Finalizar treino -->
+<ion-modal class="sheet-modal" [isOpen]="finalizarAberto()" [initialBreakpoint]="0.55" [breakpoints]="[0, 0.55]" (didDismiss)="finalizarAberto.set(false)">
+  <ng-template>
+    <div class="flex flex-col bg-popover px-5 pb-[calc(1.25rem+var(--safe-bottom))] pt-4">
+      <h2 class="text-base font-bold text-foreground">Finalizar treino</h2>
+      <div class="mt-4 grid grid-cols-2 gap-3 pb-4">
+        <div class="surface-card p-3">
+          <p class="label-caps">Duração</p>
+          <p class="num mt-1 text-2xl text-foreground">{{ formatClock(elapsedSec()) }}</p>
+        </div>
+        <div class="surface-card p-3">
+          <p class="label-caps">Volume</p>
+          <p class="num mt-1 text-2xl text-foreground">{{ volumeAtual() | volume }}</p>
+        </div>
+        <div class="surface-card p-3">
+          <p class="label-caps">Séries</p>
+          <p class="num mt-1 text-2xl text-foreground">{{ seriesFeitas().length }}</p>
+        </div>
+        <div class="surface-card p-3">
+          <p class="label-caps">Repetições</p>
+          <p class="num mt-1 text-2xl text-foreground">{{ repeticoesFeitas() }}</p>
+        </div>
+      </div>
+      <div class="flex flex-col gap-3 pb-2">
+        <ion-button
+          fill="clear"
+          (click)="confirmarFinalizar()"
+          class="
+            !h-[50px] !w-full !m-0
+            !flex !items-center !justify-center
+            !font-mono !text-[16px] !text-primary-foreground
+            !border !border-solid !border-primary !rounded-[5px]
+            !bg-primary
+            !transition-all !duration-500 active:!duration-100
+            [--ripple-color:transparent]
+          "
+        >
+          Finalizar treino
+        </ion-button>
+
+        <ion-button
+          fill="clear"
+          (click)="finalizarAberto.set(false)"
+          class="
+            !h-[50px] !w-full !m-0
+            !flex !items-center !justify-center
+            !font-mono !text-[16px] !text-primary-foreground
+            !border !border-solid !border-primary !rounded-[5px]
+            !bg-primary
+            !transition-all !duration-500 active:!duration-100
+            [--ripple-color:transparent]
+          "
+        >
+          Voltar ao treino
+        </ion-button>
+      </div>
+    </div>
+  </ng-template>
+</ion-modal>

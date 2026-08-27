@@ -1,0 +1,28 @@
+:host {
+  display: block;
+  height: 100%;
+}
+
+.onboarding-content {
+  --padding-start: 0;
+  --padding-end: 0;
+  --padding-top: 0;
+  --padding-bottom: 0;
+}
+
+.onboarding-track {
+  height: 100%;
+
+  // Esconde a scrollbar do carrossel horizontal (o scroll-snap já entrega
+  // a navegação por swipe; a barra visível só polui o visual).
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.onboarding-slide {
+  height: 100%;
+}

@@ -1,0 +1,71 @@
+<app-header title="Ajustes" subtitle="Aplicados aos próximos treinos" [back]="true" defaultHref="/tabs/profile"></app-header>
+
+<ion-content color="dark">
+  <div class="screen-pad pt-5 pb-6">
+    <h2 class="label-caps mb-3">Descanso padrão</h2>
+    <div class="surface-card p-3">
+      <p class="label-caps text-center">Descanso</p>
+      <div class="mt-2 flex items-center justify-between gap-2">
+        <button
+          type="button"
+          aria-label="Diminuir descanso"
+          [disabled]="descansoPadrao() <= 15"
+          (click)="ajustarDescanso(-15)"
+          class="tap grid size-14 place-items-center rounded-xl bg-secondary text-foreground disabled:opacity-40"
+        >
+          −
+        </button>
+        <p class="num text-4xl text-foreground">
+          {{ descansoPadrao() }}<span class="ml-1 text-xs font-semibold tracking-normal text-muted-foreground">s</span>
+        </p>
+        <button
+          type="button"
+          aria-label="Aumentar descanso"
+          [disabled]="descansoPadrao() >= 300"
+          (click)="ajustarDescanso(15)"
+          class="tap grid size-14 place-items-center rounded-xl bg-secondary text-foreground disabled:opacity-40"
+        >
+          +
+        </button>
+      </div>
+    </div>
+
+    <div class="mt-7 space-y-2.5">
+      <h2 class="label-caps">Durante o treino</h2>
+
+      <button type="button" role="switch" [attr.aria-checked]="iniciarDescansoAuto() ? 'true' : 'false'" (click)="iniciarDescansoAuto.set(!iniciarDescansoAuto())" class="tap flex w-full items-center gap-3 surface-card px-4 py-4 text-left">
+        <span class="min-w-0 flex-1">
+          <span class="block text-base font-bold text-foreground">Iniciar descanso automaticamente</span>
+          <span class="block text-xs text-muted-foreground">O timer começa ao concluir a série</span>
+        </span>
+        <span [class]="iniciarDescansoAuto() ? 'relative h-7 w-12 shrink-0 rounded-full bg-primary transition-colors' : 'relative h-7 w-12 shrink-0 rounded-full bg-secondary transition-colors'">
+          <span [class]="iniciarDescansoAuto() ? 'absolute top-1 left-6 size-5 rounded-full bg-background transition-all' : 'absolute top-1 left-1 size-5 rounded-full bg-background transition-all'"></span>
+        </span>
+      </button>
+
+      <button type="button" role="switch" [attr.aria-checked]="vibracao() ? 'true' : 'false'" (click)="vibracao.set(!vibracao())" class="tap flex w-full items-center gap-3 surface-card px-4 py-4 text-left">
+        <span class="min-w-0 flex-1">
+          <span class="block text-base font-bold text-foreground">Vibração</span>
+          <span class="block text-xs text-muted-foreground">Vibra ao concluir série e ao zerar o descanso</span>
+        </span>
+        <span [class]="vibracao() ? 'relative h-7 w-12 shrink-0 rounded-full bg-primary transition-colors' : 'relative h-7 w-12 shrink-0 rounded-full bg-secondary transition-colors'">
+          <span [class]="vibracao() ? 'absolute top-1 left-6 size-5 rounded-full bg-background transition-all' : 'absolute top-1 left-1 size-5 rounded-full bg-background transition-all'"></span>
+        </span>
+      </button>
+
+      <button type="button" role="switch" [attr.aria-checked]="manterTelaAtiva() ? 'true' : 'false'" (click)="manterTelaAtiva.set(!manterTelaAtiva())" class="tap flex w-full items-center gap-3 surface-card px-4 py-4 text-left">
+        <span class="min-w-0 flex-1">
+          <span class="block text-base font-bold text-foreground">Manter tela ativa</span>
+          <span class="block text-xs text-muted-foreground">A tela não apaga enquanto o treino estiver em andamento</span>
+        </span>
+        <span [class]="manterTelaAtiva() ? 'relative h-7 w-12 shrink-0 rounded-full bg-primary transition-colors' : 'relative h-7 w-12 shrink-0 rounded-full bg-secondary transition-colors'">
+          <span [class]="manterTelaAtiva() ? 'absolute top-1 left-6 size-5 rounded-full bg-background transition-all' : 'absolute top-1 left-1 size-5 rounded-full bg-background transition-all'"></span>
+        </span>
+      </button>
+    </div>
+
+    <p class="mt-6 text-xs leading-relaxed text-muted-foreground">
+      Seus treinos ficam salvos neste aparelho e são enviados automaticamente quando há conexão.
+    </p>
+  </div>
+</ion-content>

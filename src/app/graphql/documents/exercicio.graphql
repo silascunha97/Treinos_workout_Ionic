@@ -1,0 +1,36 @@
+query GetExercicios($busca: String, $grupoMuscular: String) {
+  exercicios(busca: $busca, grupoMuscular: $grupoMuscular) {
+    id
+    nome
+    grupoMuscular
+    musculosSecundarios
+    cargaMaximaKg
+    permiteCarga
+    tipoExercicio
+  }
+}
+
+query GetExercicioById($id: ID!) {
+  exercicio(id: $id) {
+    id
+    nome
+    grupoMuscular
+    musculosSecundarios
+    cargaMaximaKg
+    permiteCarga
+    tipoExercicio
+    historicoCargas {
+      data
+      pesoKg
+      repeticoes
+    }
+  }
+}
+
+mutation CriarExercicio($input: CriarExercicioInput!) {
+  criarExercicio(input: $input) {
+    id
+    nome
+    grupoMuscular
+  }
+}

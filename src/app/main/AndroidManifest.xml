@@ -1,0 +1,11 @@
+<activity android:name=".MainActivity" ...>
+  
+  <!-- Intent Filter para aceitar a URL de retorno: forja://auth-callback -->
+  <intent-filter>
+      <action android:name="android.intent.action.VIEW" />
+      <category android:name="android.intent.category.DEFAULT" />
+      <category android:name="android.intent.category.BROWSABLE" />
+      <data android:scheme="forja" android:host="auth-callback" />
+  </intent-filter>
+
+</activity>

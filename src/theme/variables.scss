@@ -1,2 +1,125 @@
 // For information on how to create your own theme, please refer to:
 // https://ionicframework.com/docs/theming/
+
+/* ==========================================================================
+   DESIGN SYSTEM & THEME TOKENS — WORKOUT APP
+   Baseado no mockup High-Contrast Dark Volt
+   ========================================================================== */
+
+:root {
+  /* ⚡ Cor Primária (Volt / Neon Lime) */
+  --ion-color-primary: #b2f500;
+  --ion-color-primary-rgb: 178, 245, 0;
+  --ion-color-primary-contrast: #0b0c0e;
+  --ion-color-primary-shade: #9cd800;
+  --ion-color-primary-tint: #c2f733;
+
+  /* 🖤 Fundos e Superfícies (Dark Palette) */
+  --ion-color-dark: #0b0c0e;
+  --ion-color-medium: #8b92a0;
+  --ion-color-light: #f4f5f8;
+
+  /* 🚦 Status (mesmos tons do design system trazido do protótipo — ver tailwind.config.js) */
+  --ion-color-success: #34d399;
+  --ion-color-success-rgb: 52, 211, 153;
+  --ion-color-success-contrast: #0b0c0e;
+  --ion-color-success-shade: #2eba87;
+  --ion-color-success-tint: #49d7a3;
+
+  --ion-color-warning: #f5b93d;
+  --ion-color-warning-rgb: 245, 185, 61;
+  --ion-color-warning-contrast: #0b0c0e;
+  --ion-color-warning-shade: #d8a336;
+  --ion-color-warning-tint: #f6c051;
+
+  --ion-color-danger: #ef4444;
+  --ion-color-danger-rgb: 239, 68, 68;
+  --ion-color-danger-contrast: #ffffff;
+  --ion-color-danger-shade: #d23c3c;
+  --ion-color-danger-tint: #f15757;
+
+  --ion-background-color: #0b0c0e;
+  --ion-background-color-rgb: 11, 12, 14;
+
+  --ion-text-color: #ffffff;
+  --ion-text-color-rgb: 255, 255, 255;
+
+  --ion-card-background: #15171c;
+  --ion-item-background: #1e2027;
+  --ion-toolbar-background: #0b0c0e;
+  --ion-tab-bar-background: #0b0c0e;
+
+  /* 📐 Tokens Customizados do App */
+  --app-bg-deep: #0b0c0e;
+  --app-card-bg: #15171c;
+  --app-input-bg: #1e2027;
+  --app-border-color: #252830;
+  --app-text-muted: #8b92a0;
+  --app-accent-lime: #b2f500;
+
+  /* 🔲 Bordas e Arredondamento */
+  --app-radius-sm: 8px;
+  --app-radius-md: 16px;
+  --app-radius-lg: 24px;
+  --app-radius-pill: 9999px;
+
+  /* 🔤 Tipografia (design system FORJA — ver src/index.html pros <link> do Google Fonts) */
+  --font-sans: "Archivo", system-ui, sans-serif;
+  --font-numeric: "Barlow Condensed", "Archivo", sans-serif;
+  --ion-font-family: var(--font-sans);
+
+  /* 📱 Safe area (usados como calc(...+var(--safe-top/bottom)) nas páginas migradas do protótipo) */
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+body {
+  font-family: var(--font-sans);
+}
+
+/* ==========================================================================
+   PADRONIZAÇÃO GLOBAL DE COMPONENTES IONIC
+   ========================================================================== */
+
+/* Cards Padrão (Sem sombras, borda sutil, cantos bem arredondados) */
+ion-card {
+  background: var(--app-card-bg);
+  border: 1px solid var(--app-border-color);
+  border-radius: var(--app-radius-md);
+  box-shadow: none;
+  margin: 0;
+}
+
+/* Campos de Entrada (Estilo Login / Busca) */
+ion-item, ion-searchbar {
+  --background: var(--app-input-bg);
+  --color: #ffffff;
+  --placeholder-color: var(--app-text-muted);
+  --border-radius: var(--app-radius-md);
+  border-radius: var(--app-radius-md);
+}
+
+/* Botões Padrão (Arredondados estilo Pill e Tipografia Pesada) */
+ion-button {
+  --border-radius: var(--app-radius-pill);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+/* Tab Bar (Identica ao Rodapé das Imagens) */
+ion-tab-bar {
+  border-top: 1px solid var(--app-border-color);
+  --background: var(--app-bg-deep);
+
+  ion-tab-button {
+    --color: var(--app-text-muted);
+    --color-selected: var(--app-accent-lime);
+    background: transparent;
+    font-size: 0.68rem;
+    font-weight: 600;
+
+    ion-icon {
+      font-size: 1.35rem;
+    }
+  }
+}

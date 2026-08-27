@@ -1,0 +1,72 @@
+<app-header title="Exercícios" [subtitle]="lista().length + ' exercícios disponíveis'"></app-header>
+
+<ion-content color="dark">
+  <div class="screen-pad pt-4">
+    <div class="relative">
+      <ion-icon name="search" class="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-lg text-muted-foreground"></ion-icon>
+      <input
+        [ngModel]="query()"
+        (ngModelChange)="query.set($event); buscar()"
+        placeholder="Buscar exercício"
+        aria-label="Buscar exercício"
+        class="h-14 w-full rounded-2xl border border-input bg-surface pl-12 pr-12 text-base text-foreground outline-none focus:border-primary/60"
+      />
+      @if (query()) {
+        <button type="button" (click)="query.set(''); buscar()" aria-label="Limpar busca" class="tap absolute right-1 top-1 grid size-12 place-items-center rounded-xl text-muted-foreground">
+          <ion-icon name="close" class="text-lg"></ion-icon>
+        </button>
+      }
+    </div>
+  </div>
+
+  <div class="no-scrollbar mt-3 flex gap-2 overflow-x-auto px-5 pb-1">
+    <button
+      type="button"
+      (click)="selecionarGrupo(null)"
+      [class]="!grupo() ? 'tap shrink-0 rounded-full px-4 text-sm font-bold bg-primary text-primary-foreground' : 'tap shrink-0 rounded-full px-4 text-sm font-bold bg-secondary text-muted-foreground'"
+    >
+      Todos
+    </button>
+    @for (g of grupos(); track g) {
+      <button
+        type="button"
+        (click)="selecionarGrupo(g)"
+        [class]="grupo() === g ? 'tap shrink-0 rounded-full px-4 text-sm font-bold bg-primary text-primary-foreground' : 'tap shrink-0 rounded-full px-4 text-sm font-bold bg-secondary text-muted-foreground'"
+      >
+        {{ g }}
+      </button>
+    }
+  </div>
+
+  @if (status() === 'loading' && !lista().length) {
+    <p class="screen-pad mt-8 text-center text-sm text-muted-foreground">Carregando exercícios...</p>
+  } @else if (status() === 'error') {
+    <p class="screen-pad mt-8 text-center text-sm text-muted-foreground">Não foi possível carregar o catálogo agora.</p>
+  } @else if (!lista().length) {
+    <app-empty-state icon="search" title="Nenhum exercício encontrado" text="Tente outro nome ou remova os filtros para ver o catálogo completo.">
+      <button type="button" class="text-sm font-bold text-primary" (click)="limparFiltros()">Limpar filtros</button>
+    </app-empty-state>
+  } @else {
+    <ul class="screen-pad mt-4 space-y-2.5 pb-6">
+      @for (ex of lista(); track ex.id) {
+        <li>
+          <a [routerLink]="['/tabs/exercises', ex.id]" class="tap flex items-center gap-3 surface-card px-4 py-3.5">
+            <div class="min-w-0 flex-1">
+              <p class="truncate text-base font-bold text-foreground">{{ ex.name }}</p>
+              <p class="text-xs text-muted-foreground">
+                {{ ex.group ?? 'Grupo não informado' }}
+                @if (ex.secondaryMuscles.length) {
+                  · {{ ex.secondaryMuscles.join(', ') }}
+                }
+              </p>
+            </div>
+            @if (ex.bestLoadKg) {
+              <app-pill tone="accent">{{ ex.bestLoadKg }} kg</app-pill>
+            }
+            <ion-icon name="chevron-forward" class="shrink-0 text-lg text-muted-foreground"></ion-icon>
+          </a>
+        </li>
+      }
+    </ul>
+  }
+</ion-content>

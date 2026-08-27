@@ -35,3 +35,35 @@
 /* @import "@ionic/angular/css/palettes/dark.always.css"; */
 /* @import "@ionic/angular/css/palettes/dark.class.css"; */
 @import '@ionic/angular/css/palettes/dark.system.css';
+
+
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Ajustes de compatibilidade Tailwind + Ionic */
+//ion-content {
+//  --background: #0b0c0e;
+//}
+
+/*
+ * Bottom sheets (ion-modal com breakpoints) usados nas telas vindas do
+ * protótipo Lovable — mesmo cantos/cor do design system em todo o app
+ * (exercise-picker, confirmações de sair/finalizar treino etc.).
+ */
+ion-modal.sheet-modal {
+  --border-radius: 24px;
+  --background: #20232b; // popover (tailwind.config.js)
+  --box-shadow: none;
+}
+
+/*
+ * ion-content dentro de um sheet tem seu próprio --background (cai pro
+ * --ion-background-color global, mais escuro que o popover do sheet) —
+ * deixamos transparente pra mostrar o bg-popover do `.ion-page` por trás
+ * (ex.: exercise-picker.component.html).
+ */
+ion-modal.sheet-modal ion-content {
+  --background: transparent;
+}

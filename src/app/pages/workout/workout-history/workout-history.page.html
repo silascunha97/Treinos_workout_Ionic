@@ -1,0 +1,29 @@
+<app-header title="Histórico" subtitle="Seu último treino" [back]="true" defaultHref="/tabs/home"></app-header>
+
+<ion-content color="dark">
+  <div class="screen-pad mt-4 pb-6">
+    @if (ultimoTreino() === undefined) {
+      <p class="text-sm text-muted-foreground">Carregando...</p>
+    } @else if (ultimoTreino(); as w) {
+      <div class="surface-card p-4">
+        <div class="flex items-baseline justify-between">
+          <p class="text-base font-bold text-foreground">{{ w.titulo }}</p>
+          <span class="num text-xl text-primary">{{ w.volumeTotalTon | weight: 'ton' }}</span>
+        </div>
+        <p class="mt-1 text-xs text-muted-foreground">{{ w.quando }}</p>
+        @if (w.duracaoMinutos) {
+          <div class="mt-3">
+            <p class="label-caps">Duração</p>
+            <p class="num mt-0.5 text-lg text-foreground">{{ w.duracaoMinutos }} min</p>
+          </div>
+        }
+      </div>
+
+      <p class="mt-6 text-center text-xs text-muted-foreground">
+        O histórico completo de treinos ainda não está disponível — por enquanto só o último treino é exibido.
+      </p>
+    } @else {
+      <p class="text-sm text-muted-foreground">Nenhum treino registrado ainda.</p>
+    }
+  </div>
+</ion-content>

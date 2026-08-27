@@ -1,0 +1,119 @@
+/*
+ * Entry point do Tailwind CSS v4.
+ *
+ * Fica em um arquivo .css separado (não .scss) de propósito: o Sass resolve
+ * "@import" statements ele mesmo antes do PostCSS rodar, então dentro de um
+ * .scss o "@import "tailwindcss";" abaixo seria interpretado como um import
+ * de Sass (e falharia, pois não existe um parcial "tailwindcss.scss") em vez
+ * de ser processado pelo plugin @tailwindcss/postcss (ver .postcssrc.json).
+ *
+ * @config aponta pro tailwind.config.js na raiz do projeto, que mantém o
+ * tema customizado (cores, radius) no formato "legado" (v3-style), suportado
+ * pelo Tailwind v4 via essa diretiva de compatibilidade.
+ */
+@import "tailwindcss";
+@config "../tailwind.config.js";
+
+/*
+ * Utilitários do design system trazido do protótipo Lovable (FORJA).
+ * Sintaxe @utility é nativa do Tailwind v4 e convive com o @config acima
+ * (que só resolve tema/cores no formato legado v3).
+ */
+/*
+ * theme() não resolve theme.extend.* vindo do @config legado (só variáveis
+ * nativas de um bloco @theme) — por isso os valores abaixo são literais,
+ * espelhando exatamente o que está em tailwind.config.js. Se um desses
+ * tokens mudar lá, mude aqui também.
+ */
+@utility num {
+  font-family: "Barlow Condensed", "Archivo", sans-serif;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.01em;
+  line-height: 0.95;
+}
+
+@utility label-caps {
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  color: #8b92a0;
+}
+
+@utility surface-card {
+  background-color: #15171c;
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 16px;
+}
+
+@utility tap {
+  min-height: 3rem;
+  min-width: 3rem;
+  transition:
+    transform 120ms ease,
+    background-color 160ms ease,
+    opacity 160ms ease;
+  &:active {
+    transform: scale(0.97);
+  }
+}
+
+@utility screen-pad {
+  padding-left: 1.25rem;
+  padding-right: 1.25rem;
+}
+
+@utility no-scrollbar {
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+@keyframes pulse-ring {
+  0% {
+    box-shadow: 0 0 0 0 rgba(178, 245, 0, 0.55);
+  }
+  100% {
+    box-shadow: 0 0 0 18px rgba(178, 245, 0, 0);
+  }
+}
+
+@utility pulse-accent {
+  animation: pulse-ring 1.6s ease-out infinite;
+}
+
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@utility rise {
+  animation: rise-in 260ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes stamp-in {
+  0% {
+    opacity: 0;
+    transform: scale(0.86);
+  }
+  55% {
+    opacity: 1;
+    transform: scale(1.04);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@utility stamp {
+  animation: stamp-in 320ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}

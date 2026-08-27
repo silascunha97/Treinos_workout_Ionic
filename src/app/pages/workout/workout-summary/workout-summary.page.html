@@ -1,0 +1,57 @@
+@if (summary(); as resumo) {
+  <ion-content color="dark">
+    <div class="screen-pad pt-[calc(3rem+var(--safe-top))]">
+      <span class="stamp grid size-16 place-items-center rounded-2xl bg-primary text-primary-foreground">
+        <ion-icon name="checkmark" class="text-3xl"></ion-icon>
+      </span>
+      <h1 class="rise mt-6 text-4xl font-black leading-none text-foreground">Treino concluído</h1>
+      <p class="mt-2 text-sm text-muted-foreground">{{ resumo.name }}</p>
+
+      <div class="mt-6 flex flex-wrap gap-2">
+        @if (resumo.volumeDelta !== null) {
+          <app-pill tone="accent">
+            <ion-icon name="arrow-up-outline" class="text-xs"></ion-icon>
+            {{ resumo.volumeDelta >= 0 ? '+' : '' }}{{ resumo.volumeDelta }}% volume
+          </app-pill>
+        }
+        @if (!online()) {
+          <app-pill tone="warning">Será sincronizado ao voltar a conexão</app-pill>
+        }
+      </div>
+
+      <div class="mt-6 grid grid-cols-2 gap-3">
+        <div class="surface-card p-4">
+          <p class="label-caps">Duração</p>
+          <p class="num mt-2 text-4xl text-foreground">{{ formatClock(resumo.durationSec) }}</p>
+        </div>
+        <div class="surface-card p-4">
+          <p class="label-caps">Volume</p>
+          <p class="num mt-2 text-4xl text-foreground">{{ resumo.volume | volume }}</p>
+        </div>
+        <div class="surface-card p-4">
+          <p class="label-caps">Séries</p>
+          <p class="num mt-2 text-4xl text-foreground">{{ resumo.sets }}</p>
+        </div>
+        <div class="surface-card p-4">
+          <p class="label-caps">Exercícios</p>
+          <p class="num mt-2 text-4xl text-foreground">{{ resumo.exercises }}</p>
+        </div>
+      </div>
+
+      <p class="mt-6 text-xs text-muted-foreground">
+        Repetições registradas: <span class="font-bold text-foreground">{{ resumo.reps }}</span>
+      </p>
+    </div>
+
+    <div class="sticky bottom-0 mt-8 space-y-2 border-t border-border bg-background/95 px-5 pb-[calc(1rem+var(--safe-bottom))] pt-4 backdrop-blur">
+      <app-button (click)="irParaMetricas()">Ver métricas</app-button>
+      <app-button variant="ghost" (click)="voltarInicio()">Voltar ao início</app-button>
+    </div>
+  </ion-content>
+} @else {
+  <ion-content color="dark">
+    <app-empty-state icon="checkmark" title="Nenhum treino finalizado ainda" text="Quando você concluir um treino, o resumo aparece aqui com volume, séries e recordes.">
+      <app-button (click)="iniciarTreino()">Iniciar treino</app-button>
+    </app-empty-state>
+  </ion-content>
+}

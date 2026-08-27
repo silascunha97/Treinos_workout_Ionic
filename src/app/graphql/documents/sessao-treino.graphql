@@ -1,0 +1,55 @@
+query GetHomeDashboard {
+  treinoHoje {
+    id
+    titulo
+    quantidadeExercicios
+    exerciciosResumo
+  }
+  suaSemana {
+    treinosRealizados
+    treinosMeta
+    volumeSemanalTon
+    variacaoVolumePercentual
+    frequenciaPercentual
+    seriesSemana
+  }
+  ultimoTreino {
+    id
+    titulo
+    quando
+    duracaoMinutos
+    volumeTotalTon
+  }
+}
+
+mutation IniciarSessaoTreino($treinoId: ID) {
+  iniciarSessaoTreino(treinoId: $treinoId) {
+    id
+    status
+    inicioEm
+  }
+}
+
+mutation FinalizarSessaoTreino($sessaoId: ID!, $dados: FinalizarSessaoInput!) {
+  finalizarSessaoTreino(sessaoId: $sessaoId, dados: $dados) {
+    id
+    status
+    duracaoMinutos
+    volumeTotalKg
+  }
+}
+
+mutation RegistrarSerie($input: RegistrarSerieInput!) {
+  registrarSerie(input: $input) {
+    idSerie
+    idSessao
+    idExercicio
+    numeroSerie
+    repsRealizadas
+    tempoIsometriaSeg
+    tempoPausaIsometricaSeg
+    cargaAdicional
+    concluido
+    tipoExecucaoSinalizada
+  }
+}

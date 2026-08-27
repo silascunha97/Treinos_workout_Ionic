@@ -4,5 +4,15 @@
     "@ionic/angular/directives",
     "@ionic/angular/index.d.ts",
     "@ionic/angular/providers"
-  ]
+  ],
+  "terminal.integrated.env.windows": {
+    "ANDROID_HOME": "${env:LOCALAPPDATA}\\Android\\Sdk",
+    "PATH": "${env:LOCALAPPDATA}\\Android\\Sdk\\platform-tools;${env:LOCALAPPDATA}\\Android\\Sdk\\emulator;${env:PATH}"
+  },
+  // A extensão "Emulate" (diemasmichiels.emulate) usa emulator.emulatorPath por padrão,
+  // que vem hardcoded com o caminho de Mac (~/Library/Android/sdk/emulator) — daí o erro
+  // "Error fetching your Android emulators!". O campo abaixo é o override específico
+  // pra Windows que ela lê antes do default.
+  "emulator.emulatorPathWindows": "C:\\Users\\silas\\AppData\\Local\\Android\\Sdk\\emulator",
+  "git.ignoreLimitWarning": true
 }
