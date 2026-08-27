@@ -1,0 +1,17 @@
+query GetPerfilPessoa {
+  meuPerfil {
+    id
+    nome
+    email
+    fotoUrl
+    metaSemanalTreinos
+  }
+}
+
+mutation AtualizarPessoa($input: AtualizarPessoaInput!) {
+  atualizarPessoa(input: $input) {
+    id
+    nome
+    email
+  }
+}

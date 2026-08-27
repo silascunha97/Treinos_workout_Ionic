@@ -16,6 +16,7 @@ log.txt
 /.sourcemaps
 /.versions
 /coverage
+/prototipagem
 
 # Ionic
 /.ionic
@@ -68,3 +69,5 @@ testem.log
 # System files
 .DS_Store
 Thumbs.db
+
+.fake

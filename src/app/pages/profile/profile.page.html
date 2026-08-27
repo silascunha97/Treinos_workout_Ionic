@@ -1,0 +1,106 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar color="dark">
+    <ion-title class="text-2xl font-extrabold px-3">Perfil</ion-title>
+    <ion-buttons slot="end">
+      <ion-button fill="clear" (click)="abrirAjustes()">
+        <span
+          slot="icon-only"
+          class="w-10 h-10 mr-1 rounded-full bg-dark-card border border-dark-border flex items-center justify-center"
+        >
+          <ion-icon name="settings-outline" class="text-lg text-white"></ion-icon>
+        </span>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content color="dark">
+  <div class="px-4 pt-2 pb-8 flex flex-col gap-6">
+    <!-- Cabeçalho do usuário -->
+    <div class="flex items-center gap-3">
+      @if (isLoading()) {
+        <ion-skeleton-text [animated]="true" class="w-14 h-14 rounded-full shrink-0 m-0"></ion-skeleton-text>
+        <div class="flex flex-col gap-2 flex-1">
+          <ion-skeleton-text [animated]="true" class="w-2/3 h-4 rounded-app-sm m-0"></ion-skeleton-text>
+          <ion-skeleton-text [animated]="true" class="w-1/2 h-3 rounded-app-sm m-0"></ion-skeleton-text>
+        </div>
+      } @else {
+        <div class="w-14 h-14 rounded-full bg-volt text-dark-bg flex items-center justify-center text-2xl font-extrabold shrink-0">
+          {{ inicialNome() }}
+        </div>
+        <div class="flex flex-col gap-0.5">
+          <span class="text-lg font-extrabold text-white leading-tight">{{ usuario()?.nome }}</span>
+          <span class="text-xs text-muted font-medium">{{ subtituloTreino() }}</span>
+        </div>
+      }
+    </div>
+
+    <!-- Estatísticas (últimos 7 dias) -->
+    <div class="flex flex-col gap-3">
+      <span class="text-xs font-bold tracking-wider text-muted uppercase">Últimos 7 dias</span>
+      <app-user-stats [estatisticas]="estatisticas()" [loading]="isLoading()"></app-user-stats>
+    </div>
+
+    <!-- Volume do mês -->
+    <div class="flex flex-col gap-3">
+      <span class="text-xs font-bold tracking-wider text-muted uppercase">Este mês</span>
+      <app-stat-badge
+        label="Volume do mês"
+        [value]="(volumeMensal()?.volumeTon ?? 0) | weight: 'ton'"
+        [hint]="mesReferencia() + ' · ' + (volumeMensal()?.totalTreinos ?? 0) + ' treinos'"
+        [accent]="true"
+      ></app-stat-badge>
+    </div>
+
+    <!-- Histórico recente -->
+    <div class="flex flex-col gap-3">
+      <div class="flex items-center justify-between">
+        <span class="text-xs font-bold tracking-wider text-muted uppercase">Histórico recente</span>
+        <button type="button" class="text-xs font-bold text-volt" (click)="verHistoricoCompleto()">
+          Ver tudo
+        </button>
+      </div>
+
+      <div class="flex flex-col gap-3">
+        @for (item of historico(); track item.id) {
+          <div class="surface-card px-4 py-3.5 flex items-center justify-between">
+            <div class="flex flex-col gap-1">
+              <span class="text-sm font-extrabold text-white">{{ item.titulo }}</span>
+              <span class="text-xs text-muted">{{ item.quando }} · {{ item.duracaoMinutos | duration }}</span>
+            </div>
+            <span class="text-base font-extrabold text-volt">{{ item.volumeTotalKg | weight: 'kg' }}</span>
+          </div>
+        } @empty {
+          <div class="surface-card px-4 py-6 text-center text-xs text-muted">
+            Nenhum treino registrado ainda.
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- Preferências -->
+    <div class="flex flex-col gap-3 rounded-3xl">
+      <span class="text-xs font-bold tracking-wider text-muted uppercase">Preferências</span>
+
+      <button
+        type="button"
+        (click)="abrirAjustes()"
+        class="surface-card px-4 py-4 flex items-center justify-between rounded-full"
+      >
+        <span class="text-sm font-extrabold text-white p-4 rounded-full">Ajustes do treino</span>
+        <ion-icon name="chevron-forward" class="text-muted text-lg"></ion-icon>
+      </button>
+    </div>
+
+    <!-- Sair da conta -->
+<button
+  type="button"
+  (click)="sairDaConta()"
+  class="flex items-center justify-center gap-3 rounded-full border border-dark-border px-8 py-4 text-sm font-extrabold text-white transition-colors hover:bg-white/5"
+>
+  <ion-icon name="log-out-outline" class="text-xl p-4"></ion-icon>
+  <span>Sair da conta</span>
+</button>
+
+  </div>
+</ion-content>

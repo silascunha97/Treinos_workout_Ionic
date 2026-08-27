@@ -1,0 +1,244 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "docker: start frontend",
+      "type": "shell",
+      "command": "docker",
+      "args": ["compose", "up", "-d", "frontend"],
+      "presentation": {
+        "reveal": "silent",
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "docker: logs frontend",
+      "type": "shell",
+      "command": "docker",
+      "args": ["compose", "logs", "-f", "frontend"],
+      "isBackground": true,
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "capacitor: sync android",
+      "type": "shell",
+      "command": "npx",
+      "args": ["cap", "sync", "android"],
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated"
+      },
+      "problemMatcher": []
+    },
+    {
+      // Build local com sourcemaps (a build padrão/production não gera .map,
+      // então sem isso não dá pra debugar o .ts original dentro da WebView).
+      "label": "ng: build web (development, com sourcemaps)",
+      "type": "shell",
+      "command": "npx",
+      "args": ["ng", "build", "--configuration", "development"],
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated"
+      },
+      "problemMatcher": ["$tsc"]
+    },
+    {
+      // Alternativa ao live-reload: gera um www/ debugável e copia pro projeto
+      // Android, pra rodar via Android Studio/USB sem depender do dev server.
+      "label": "capacitor: build web (dev) + sync android",
+      "dependsOrder": "sequence",
+      "dependsOn": [
+        "ng: build web (development, com sourcemaps)",
+        "capacitor: sync android"
+      ],
+      "problemMatcher": []
+    },
+    {
+      // `npx cap run android -l` trava no Windows ("'gradlew' não é reconhecido")
+      // por um bug conhecido do @capacitor/cli (cross-spawn não resolve
+      // "./gradlew" -> "gradlew.bat" nessa versão). Por isso o live-reload é
+      // feito manualmente nos passos abaixo em vez de usar `cap run -l`.
+      "label": "capacitor: sync android (live reload)",
+      "type": "shell",
+      "command": "npx",
+      "args": ["cap", "sync", "android"],
+      "options": {
+        "env": { "IONIC_LIVE_RELOAD_URL": "http://localhost:8100" }
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated"
+      },
+      "problemMatcher": []
+    },
+    {
+      // Sobe o emulador do Android Studio (AVD "Pixel_10_Pro") direto do VS Code,
+      // sem precisar abrir o Android Studio. Deixa rodando em 2º plano; acompanhe
+      // o boot com "adb devices" (aparece "offline" até terminar, depois "device").
+      // Uso manual (ex.: só quer a janela do emulador aberta, sem build/instalar
+      // nada ainda) — pra automatizar tudo (esperar boot de verdade + build +
+      // instalar + devtools) use a task "android: run emulator (Pixel_10_Pro, full auto)".
+      "label": "android: start emulator (Pixel_10_Pro)",
+      "type": "shell",
+      "command": "emulator",
+      "args": ["-avd", "Pixel_10_Pro"],
+      "isBackground": true,
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated"
+      },
+      "problemMatcher": []
+    },
+    {
+      // Task principal pro emulador: sobe o AVD "Pixel_10_Pro" (se ainda não
+      // estiver rodando), espera o boot terminar de verdade
+      // (sys.boot_completed=1, não só aparecer em "adb devices" — é isso que
+      // evita o "adb.exe: device offline" ao tentar fazer deploy cedo demais
+      // durante o cold boot), builda com live-reload, instala, abre o app e
+      // já deixa a porta 9222 (devtools da WebView) encaminhada.
+      "label": "android: run emulator (Pixel_10_Pro, full auto)",
+      "type": "shell",
+      "command": "node",
+      "args": ["${workspaceFolder}/.vscode/scripts/run-emulator.js"],
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated"
+      },
+      "problemMatcher": []
+    },
+    {
+      // Logcat filtrado só pelo processo do app (sem ruído do resto do
+      // sistema) — reconecta sozinho se o app reiniciar com outro PID.
+      "label": "adb: logcat (app filter)",
+      "type": "shell",
+      "command": "node",
+      "args": ["${workspaceFolder}/.vscode/scripts/logcat-app.js"],
+      "isBackground": true,
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated"
+      },
+      "problemMatcher": []
+    },
+    {
+      // Tuneliza a porta do dev server pelo cabo USB/rede do emulador (funciona
+      // mesmo se o aparelho não estiver na mesma rede Wi-Fi do PC).
+      "label": "adb: reverse dev server port (USB)",
+      "type": "shell",
+      "command": "adb",
+      "args": ["reverse", "tcp:8100", "tcp:8100"],
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    },
+    {
+      // Túnel pra API GraphQL (porta 4000) — necessário pra login/dados funcionarem
+      // em device físico via USB. No emulador é inofensivo/sem efeito (o app usa
+      // 10.0.2.2 lá, via toNativeUrl()/initNativeUrlDetection() detectando
+      // Device.getInfo().isVirtual — ver native-url.util.ts).
+      "label": "adb: reverse graphql port (USB)",
+      "type": "shell",
+      "command": "adb",
+      "args": ["reverse", "tcp:4000", "tcp:4000"],
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    },
+    {
+      // Túnel pro endpoint REST que inicia o handshake OAuth do Google (porta 3000).
+      "label": "adb: reverse google-auth port (USB)",
+      "type": "shell",
+      "command": "adb",
+      "args": ["reverse", "tcp:3000", "tcp:3000"],
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "gradlew: install debug (android)",
+      "type": "shell",
+      "command": ".\\gradlew.bat",
+      "args": ["installDebug"],
+      "options": {
+        "cwd": "${workspaceFolder}/android"
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "adb: launch app",
+      "type": "shell",
+      "command": "adb",
+      "args": ["shell", "am", "start", "-n", "io.ionic.starter/.MainActivity"],
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    },
+    {
+      // Task principal: builda com a URL do dev server injetada, instala e abre
+      // no dispositivo/emulador atualmente conectado via adb, com hot reload.
+      // Funciona tanto pra celular via USB quanto pro emulador (rode antes a
+      // task "android: start emulator (Pixel_10_Pro)" e espere aparecer como
+      // "device" — não "offline" — em "adb devices").
+      "label": "android: run live reload (USB)",
+      "dependsOrder": "sequence",
+      "dependsOn": [
+        "docker: start frontend",
+        "capacitor: sync android (live reload)",
+        "adb: reverse dev server port (USB)",
+        "adb: reverse graphql port (USB)",
+        "adb: reverse google-auth port (USB)",
+        "gradlew: install debug (android)",
+        "adb: launch app"
+      ],
+      "problemMatcher": []
+    },
+    {
+      // Descobre o socket devtools atual da WebView (nome muda a cada execução do
+      // app, pois inclui o PID) e cria o adb forward para a porta 9222.
+      "label": "adb: forward webview devtools port",
+      "type": "shell",
+      "command": "node",
+      "args": ["${workspaceFolder}/.vscode/scripts/adb-forward-webview.js"],
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    },
+    {
+      // Abre a pasta android/ diretamente no Android Studio (layout editor,
+      // profiler, inspeção de views etc. — o que o VS Code não cobre).
+      // "type": "process" (não "shell") evita problema de aspas com o espaço
+      // em "Program Files"/"Android Studio". "isBackground" pra não travar o
+      // VS Code esperando você fechar a IDE.
+      "label": "android studio: open project",
+      "type": "process",
+      "command": "C:\\Program Files\\Android\\Android Studio\\bin\\studio64.exe",
+      "args": ["${workspaceFolder}\\android"],
+      "isBackground": true,
+      "presentation": {
+        "reveal": "silent",
+        "panel": "dedicated"
+      },
+      "problemMatcher": []
+    }
+  ]
+}

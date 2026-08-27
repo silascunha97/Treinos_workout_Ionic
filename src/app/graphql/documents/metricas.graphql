@@ -1,0 +1,36 @@
+query GetMetricasResumo {
+  metricasResumo {
+    volumeSemanalTon
+    variacaoVolumePercentual
+    frequenciaSemanal
+    mediaFrequenciaSemanas
+    seriesConcluidas
+    ultimoTreinoTexto
+  }
+}
+
+query GetEvolucaoVolume {
+  evolucaoVolume {
+    semana
+    volumeTon
+  }
+}
+
+query GetMelhoresMarcas {
+  melhoresMarcas {
+    exercicioId
+    exercicioNome
+    cargaKg
+    repeticoes
+    diasAtras
+  }
+}
+
+query GetRecordesIsometricos {
+  recordesIsometricos {
+    exercicioId
+    exercicioNome
+    maiorTempoSegundos
+    atingidoEm
+  }
+}

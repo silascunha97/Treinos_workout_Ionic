@@ -1,0 +1,76 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    
+    {
+      // Debuga o app no Chrome, apontando para o dev server (docker-compose: ionic serve --port 8100).
+      "type": "chrome",
+      "request": "launch",
+      "name": "Chrome: Debug web (docker ionic serve)",
+      "url": "http://localhost:8100/home",
+      "webRoot": "${workspaceFolder}",
+      "preLaunchTask": "docker: start frontend",
+      "sourceMaps": true,
+      "sourceMapPathOverrides": {
+        "webpack:///./~/*": "${webRoot}/node_modules/*",
+        "webpack:///./*": "${webRoot}/*",
+        "webpack:///*": "*"
+      }
+    },
+    {
+      // Anexa a uma aba do Chrome já aberta em http://localhost:8100 (Chrome iniciado com --remote-debugging-port=9222).
+      "type": "chrome",
+      "request": "attach",
+      "name": "Chrome: Attach (porta 9222)",
+      "port": 9222,
+      "url": "http://localhost:8100/*",
+      "webRoot": "${workspaceFolder}"
+    },
+    {
+      // Debuga o JS/TS rodando dentro da WebView do Capacitor no Android via Chrome DevTools Protocol.
+      // Pré-requisitos:
+      //   1) rodar a task "android: run live reload (USB)" (ou instalar o APK debug e abrir o app)
+      //   2) o dispositivo/emulador precisa estar conectado (adb devices)
+      "type": "chrome",
+      "request": "attach",
+      "name": "Android: Attach WebView (Capacitor)",
+      "port": 9222,
+      "webRoot": "${workspaceFolder}",
+      "preLaunchTask": "adb: forward webview devtools port",
+      "timeout": 30000
+    },
+    {
+      // Sobe o emulador "Pixel_10_Pro" do zero (se preciso), espera o boot terminar
+      // de verdade, builda, instala, abre o app e encaminha a porta 9222 — tudo via
+      // a task "android: run emulator (Pixel_10_Pro, full auto)" — e então anexa o
+      // debugger na WebView. Fluxo de "F5 e pronto" pra quem não tem o emulador aberto ainda.
+      "type": "chrome",
+      "request": "attach",
+      "name": "Android: Auto-start emulador + Attach WebView",
+      "port": 9222,
+      "webRoot": "${workspaceFolder}",
+      "preLaunchTask": "android: run emulator (Pixel_10_Pro, full auto)",
+      "timeout": 180000
+    },
+    {
+      // Debuga o código nativo Android (Java/Kotlin) anexando ao processo do app em execução.
+      // Requer a extensão recomendada (Webnative/Ionic) instalada, que fornece o tipo "android" e o comando PickAndroidProcess.
+      "type": "android",
+      "request": "attach",
+      "name": "Android: Attach nativo (Java/Kotlin)",
+      "appSrcRoot": "${workspaceFolder}/android/app/src/main",
+      "adbPort": 5037,
+      "processId": "${command:PickAndroidProcess}"
+    }
+  ],
+  "compounds": [
+    {
+      // Depura simultaneamente a WebView (JS/TS) e o código nativo Android do mesmo app em execução no dispositivo.
+      "name": "Android: Full Stack (WebView + Nativo)",
+      "configurations": [
+        "Android: Attach WebView (Capacitor)",
+        "Android: Attach nativo (Java/Kotlin)"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,128 @@
+<app-header title="Métricas" subtitle="Últimas 6 semanas">
+  <app-sync-pill right></app-sync-pill>
+</app-header>
+
+<ion-content color="dark">
+  @if (metricsState() === 'processing') {
+    <section class="screen-pad pt-4">
+      <div class="rounded-2xl border border-info/30 bg-info/10 p-4">
+        <p class="flex items-center gap-2 text-sm font-bold text-info">
+          <ion-icon name="refresh" class="animate-spin text-base"></ion-icon> Processando métricas...
+        </p>
+        <p class="mt-1.5 text-xs text-muted-foreground">Seu treino foi salvo. Estamos atualizando seus indicadores.</p>
+      </div>
+      <div class="mt-4 grid grid-cols-2 gap-3">
+        <ion-skeleton-text [animated]="true" class="h-24 rounded-2xl"></ion-skeleton-text>
+        <ion-skeleton-text [animated]="true" class="h-24 rounded-2xl"></ion-skeleton-text>
+        <ion-skeleton-text [animated]="true" class="h-24 rounded-2xl"></ion-skeleton-text>
+        <ion-skeleton-text [animated]="true" class="h-24 rounded-2xl"></ion-skeleton-text>
+      </div>
+      <ion-skeleton-text [animated]="true" class="mt-4 h-40 rounded-2xl"></ion-skeleton-text>
+    </section>
+  } @else if (status() === 'loading') {
+    <section class="screen-pad pt-4">
+      <div class="grid grid-cols-2 gap-3">
+        <ion-skeleton-text [animated]="true" class="h-24 rounded-2xl"></ion-skeleton-text>
+        <ion-skeleton-text [animated]="true" class="h-24 rounded-2xl"></ion-skeleton-text>
+        <ion-skeleton-text [animated]="true" class="h-24 rounded-2xl"></ion-skeleton-text>
+        <ion-skeleton-text [animated]="true" class="h-24 rounded-2xl"></ion-skeleton-text>
+      </div>
+    </section>
+  } @else if (status() === 'error') {
+    <section class="screen-pad pt-8 text-center">
+      <p class="text-sm text-muted-foreground">Não foi possível carregar suas métricas agora.</p>
+      <div class="mt-4">
+        <app-button variant="outline" (click)="recarregar()">
+          <ion-icon name="refresh" class="text-base"></ion-icon> Tentar novamente
+        </app-button>
+      </div>
+    </section>
+  } @else {
+    @if (!online()) {
+      <section class="screen-pad pt-4">
+        <div class="rounded-2xl border border-warning/30 bg-warning/10 p-4">
+          <p class="flex items-center gap-2 text-sm font-bold text-warning">
+            <ion-icon name="alert-circle-outline" class="text-base"></ion-icon> Sem conexão
+          </p>
+          <p class="mt-1.5 text-xs text-muted-foreground">Mostrando os últimos dados carregados.</p>
+        </div>
+      </section>
+    }
+
+    <section class="screen-pad pt-4">
+      <h2 class="label-caps mb-3">Resumo</h2>
+      <div class="grid grid-cols-2 gap-3">
+        <app-stat-badge label="Volume semanal" [value]="resumo().volumeTon | weight: 'ton'" [hint]="(resumo().volumeDeltaPercent >= 0 ? '+' : '') + resumo().volumeDeltaPercent + '% vs anterior'" [accent]="true"></app-stat-badge>
+        <app-stat-badge label="Frequência" [value]="resumo().frequenciaSemanal + ''" unit="/sem" hint="Esta semana"></app-stat-badge>
+        <app-stat-badge label="Séries" [value]="resumo().series + ''" hint="Concluídas"></app-stat-badge>
+        <app-stat-badge label="Último treino" value="—" [hint]="resumo().ultimoTreinoTexto"></app-stat-badge>
+      </div>
+    </section>
+
+    <section class="screen-pad mt-7">
+      <h2 class="label-caps mb-3">Volume por semana</h2>
+      <div class="surface-card p-4">
+        @if (evolucaoVolume().length) {
+          <div class="flex h-40 items-end gap-2.5">
+            @for (v of evolucaoVolume(); track v.label; let last = $last) {
+              <div class="flex flex-1 flex-col items-center gap-2">
+                <span class="num text-[11px] text-muted-foreground">{{ v.value | weight: 'ton' }}</span>
+                <div [class]="last ? 'w-full rounded-t-lg bg-primary' : 'w-full rounded-t-lg bg-secondary'" [style.height.%]="(v.value / volumeMaximo()) * 100"></div>
+                <span class="text-[10px] font-bold text-muted-foreground">{{ v.label }}</span>
+              </div>
+            }
+          </div>
+        } @else {
+          <p class="py-6 text-center text-xs text-muted-foreground">Sem dados de volume ainda.</p>
+        }
+      </div>
+    </section>
+
+    <section class="screen-pad mt-7 pb-6">
+      <h2 class="label-caps mb-3">Melhores marcas</h2>
+      @if (melhoresMarcas().length) {
+        <ul class="space-y-2.5">
+          @for (r of melhoresMarcas(); track r.exercise) {
+            <li class="flex items-center gap-3 surface-card px-4 py-3.5">
+              <span class="grid size-10 place-items-center rounded-xl bg-primary/15 text-primary">
+                <ion-icon name="trophy" class="text-lg"></ion-icon>
+              </span>
+              <span class="min-w-0 flex-1">
+                <span class="block truncate text-base font-bold text-foreground">{{ r.exercise }}</span>
+                <span class="block text-xs text-muted-foreground">{{ r.detail }}</span>
+              </span>
+              <span class="num text-2xl text-primary">{{ r.value }}</span>
+            </li>
+          }
+        </ul>
+      } @else {
+        <p class="text-xs text-muted-foreground">Nenhum recorde registrado ainda.</p>
+      }
+    </section>
+
+    <!-- Melhores tempos em isometria (query recordesIsometricos) — mesmo padrão de
+         "Melhores marcas" acima, mas com destaque visual próprio (info/cronômetro em
+         vez de primary/troféu) pra diferenciar tempo sustentado de carga dinâmica. -->
+    <section class="screen-pad mt-7 pb-6">
+      <h2 class="label-caps mb-3">Melhores tempos em isometria</h2>
+      @if (melhoresTemposIsometria().length) {
+        <ul class="space-y-2.5">
+          @for (r of melhoresTemposIsometria(); track r.exercicioId) {
+            <li class="flex items-center gap-3 surface-card px-4 py-3.5">
+              <span class="grid size-10 place-items-center rounded-xl bg-info/15 text-info">
+                <ion-icon name="stopwatch-outline" class="text-lg"></ion-icon>
+              </span>
+              <span class="min-w-0 flex-1">
+                <span class="block truncate text-base font-bold text-foreground">{{ r.exercicioNome }}</span>
+                <span class="block text-xs text-muted-foreground">Sustentação máxima</span>
+              </span>
+              <span class="num text-2xl text-info">{{ r.melhorTempoSeg }}<span class="ml-0.5 text-xs font-semibold tracking-normal text-muted-foreground">s</span></span>
+            </li>
+          }
+        </ul>
+      } @else {
+        <p class="text-xs text-muted-foreground">Nenhum recorde de isometria ainda. Complete uma série isométrica pra começar a registrar.</p>
+      }
+    </section>
+  }
+</ion-content>

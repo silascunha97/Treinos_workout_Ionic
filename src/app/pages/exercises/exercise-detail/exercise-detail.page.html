@@ -1,0 +1,72 @@
+@if (exercicio() === undefined) {
+  <app-header title="Exercício" [back]="true" defaultHref="/tabs/exercises"></app-header>
+  <ion-content color="dark" class="ion-padding">
+    <p class="text-sm text-muted-foreground">Carregando...</p>
+  </ion-content>
+} @else if (exercicio(); as ex) {
+  <app-header [title]="ex.name" [subtitle]="ex.group ?? 'Grupo não informado'" [back]="true" defaultHref="/tabs/exercises"></app-header>
+
+  <ion-content color="dark">
+    <div class="screen-pad pt-4 pb-6">
+      <div class="relative flex h-40 items-end overflow-hidden rounded-3xl border border-border bg-surface p-5">
+        <div class="absolute inset-0 grid place-items-center text-primary/25">
+          <ion-icon name="barbell" class="text-8xl"></ion-icon>
+        </div>
+        <div class="relative flex flex-wrap gap-2">
+          @if (ex.group) {
+            <app-pill tone="accent">{{ ex.group }}</app-pill>
+          }
+          @for (m of ex.secondaryMuscles; track m) {
+            <app-pill>{{ m }}</app-pill>
+          }
+        </div>
+      </div>
+
+      <div class="mt-6 grid grid-cols-2 gap-3">
+        <div class="surface-card p-4">
+          <p class="label-caps flex items-center gap-1.5"><ion-icon name="trophy" class="text-sm"></ion-icon> Melhor carga</p>
+          @if (ex.bestLoadKg) {
+            <p class="num mt-2 text-3xl text-primary">{{ ex.bestLoadKg }}<span class="ml-1 text-xs tracking-normal text-muted-foreground">kg</span></p>
+          } @else {
+            <p class="mt-2 text-sm text-muted-foreground">Registre para descobrir</p>
+          }
+        </div>
+        <div class="surface-card p-4">
+          <p class="label-caps">Permite carga adicional</p>
+          <p class="num mt-2 text-3xl text-foreground">{{ ex.permiteCarga ? 'Sim' : 'Não' }}</p>
+        </div>
+      </div>
+
+      @if (ex.historicoCargas?.length) {
+        <div class="mt-6">
+          <h2 class="label-caps mb-3">Histórico de cargas</h2>
+          <ul class="space-y-2">
+            @for (h of ex.historicoCargas; track h.data) {
+              <li class="flex items-center gap-3 surface-card px-4 py-3">
+                <ion-icon name="calendar-outline" class="text-base text-muted-foreground"></ion-icon>
+                <span class="flex-1 text-sm text-foreground">{{ h.data }}</span>
+                <span class="num text-base text-foreground">
+                  {{ h.pesoKg ?? '—' }}<span class="text-xs text-muted-foreground">kg</span>
+                  @if (h.repeticoes) {
+                    · {{ h.repeticoes }} reps
+                  }
+                </span>
+              </li>
+            }
+          </ul>
+        </div>
+      } @else {
+        <p class="mt-6 text-xs text-muted-foreground">Sem histórico de cargas registrado ainda.</p>
+      }
+    </div>
+
+    <div class="sticky bottom-0 border-t border-border bg-background/95 px-5 pb-[calc(1rem+var(--safe-bottom))] pt-4 backdrop-blur">
+      <app-button (click)="adicionarAoTreino()">Adicionar ao treino</app-button>
+    </div>
+  </ion-content>
+} @else {
+  <app-header title="Exercício" [back]="true" defaultHref="/tabs/exercises"></app-header>
+  <ion-content color="dark" class="ion-padding">
+    <p class="text-sm text-muted-foreground">Esse exercício não está mais no catálogo.</p>
+  </ion-content>
+}
